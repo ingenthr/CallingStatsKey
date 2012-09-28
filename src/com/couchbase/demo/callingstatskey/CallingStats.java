@@ -8,6 +8,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -31,11 +32,9 @@ public class CallingStats {
    * @throws IOException
    */
   public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
-    List<URI> baselist = new ArrayList<URI>();
-
-    URI firstHost = new URI("http://192.168.1.200:8091/pools");
-
-    baselist.add(firstHost);
+    List<URI> baselist = Arrays.asList(
+            /* add one more! URI.create("http://192.168.0.1:8091/pools"), */
+            URI.create("http://192.168.1.200:8091/pools"));
 
     CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
     cfb.setOpTimeout(10000);
@@ -68,17 +67,17 @@ public class CallingStats {
     // the vbucket index    
     int vbucketIndex = vBucketIndex;
     System.err.println("key " + key + " " + vbucketIndex);
-    
+
     Map<SocketAddress, Map<String, String>> stats = client.getStats("key " + key + " " + vbucketIndex);
-    
+
     // since the stats is called for all nodes, just reach into the one we really care about
     SocketAddress primaryNode = nodeLocator.getPrimary(key).getSocketAddress();
     Map<String, String> statsForKey = stats.get(primaryNode);
-    
+
     for (Map.Entry<String, String> thestats : statsForKey.entrySet()) {
       StringBuilder sb = new StringBuilder();
       sb.append("Stat: ").append(thestats.getKey())
-        .append(" Value: ").append(thestats.getValue());
+              .append(" Value: ").append(thestats.getValue());
       System.out.println(sb.toString());
     }
   }
