@@ -8,6 +8,7 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -33,14 +34,18 @@ public class CallingStats {
   public static void main(String[] args) throws URISyntaxException, IOException, InterruptedException, ExecutionException {
 
 
-    if (args.length == 0) {
-      System.err.println("usage: java -jar CallingStats.jar ipaddr [ipaddr ...]");
+    if (args.length <= 1) {
+      System.err.println("usage: java -jar CallingStats.jar bucketname ipaddr [ipaddr ...]");
       System.exit(1);
     }
 
+    String bucketname = args[0];
+    String[] hostArgs = Arrays.copyOfRange(args, 1, args.length);
+    System.err.println(Arrays.toString(hostArgs));
+
     List<URI> baselist = new ArrayList<URI>();
 
-    for (String argument : args) {
+    for (String argument : hostArgs) {
       String oneHost = "http://" + argument + ":8091/pools";
       try {
         URI node = new URI(oneHost);
@@ -55,7 +60,7 @@ public class CallingStats {
     cfb.setOpTimeout(10000);
 
     CouchbaseClient cbclient;
-    cbclient = new CouchbaseClient(cfb.buildCouchbaseConnection(baselist, "PERSISTENT", ""));
+    cbclient = new CouchbaseClient(cfb.buildCouchbaseConnection(baselist, bucketname, ""));
 
     // Now we'll delete it if it's in there, then set it.
     cbclient.delete("foo").get();  // we don't care if the delete fails
