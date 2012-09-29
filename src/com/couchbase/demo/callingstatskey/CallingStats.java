@@ -51,7 +51,7 @@ public class CallingStats {
     printKeyStats(cbclient, "foo");
 
     // after a bit of time, we should see the key's not dirty, etc.
-    Thread.sleep(200);
+    Thread.sleep(10000);
     printKeyStats(cbclient, "foo");
 
 
